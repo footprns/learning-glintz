@@ -72,7 +72,77 @@ Image is a set of code, runtime, and library
 ![](https://docs.docker.com/engine/images/architecture.svg)
 
 # Docker build
+Ref: https://docs.docker.com/engine/reference/builder/
+
+Basic build
+1. Check file structure
+2. Install flask
+```
+docker build -t footprns/flask:0.1 ./dockerfile1
+docker run --rm footprns/flask:0.1
+```
+
+Build app
+```
+docker build -t footprns/flask:0.2 ./dockerfile2 && \
+docker run --rm -p 5000:5000 footprns/flask:0.2
+```
+
+Use Environment variable
+```
+docker build -t footprns/flask:0.2 \
+./dockerfile2 && \
+docker run --rm \
+--env  FLASK_APP=hello.py -p 5000:5000 footprns/flask:0.2
+```
+Test
+```
+curl http://localhost:5000
+```
+fix 
+```
+docker run --rm -p 5000:5000 --name flask-container footprns/flask:0.2
+```
+Docker command
+```
+docker ps |grep flask-container
+docker logs flask-container
+docker container inspect flask-container
+```
+
 # Docker pull
-
+Example: `docker pull nginx`
 # Docker run
+Example: `docker run -it --rm busybox`
 
+# Docker Volume
+```
+docker volume create glintz_storage
+docker run --rm -it --name glintz \
+-v glintz_storage:/var/glintz_data \
+--env FLASK_APP=hello.py \
+footprns/glintz:0.1
+```
+check the storage
+```
+docker exec glintz touch /var/glintz_data/1.txt
+docker exec glintz touch /usr/src/1.txt
+
+docker exec glintz ls /var/glintz_data/1.txt
+docker exec glintz ls /usr/src/1.txt
+docker volume inspect glintz_storage
+```
+
+# Docker Network
+Bridge
+```
+docker run --rm -d -v mysql:/var/lib/mysql \
+  -v mysql_config:/etc/mysql -p 3306:3306 \
+  --network mysqlnet \
+  --name mysqldb \
+  -e MYSQL_ROOT_PASSWORD=p@ssw0rd1 \
+  mysql
+```
+Host
+
+Overlay
